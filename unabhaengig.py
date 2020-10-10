@@ -74,7 +74,7 @@ if __name__ == "__main__":
         for pv in pv_list:
             for bat in bat_list:
                 if i % 100 == 0:
-                    print(f"Fortschritt: {(i/length*100):.2f} %")
+                    print(f"Fortschritt: {(i/length*100):.2f} %", end="\r")
                 ratio_pv = SetRatioPV(last, pv)
                 ratio_bat = SetRatioBat(last, bat)
 
