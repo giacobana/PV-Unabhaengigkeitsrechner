@@ -62,7 +62,7 @@ def GetDirektverbrauchAutarkie(ratio_pv):
 if __name__ == "__main__":
     last_list = list(range(2000,10000,500))
     pv_list = np.arange(1.0, 20.0,0.5).tolist()
-    bat_list = np.arange(0.0, 20.0, 0.52).tolist()
+    bat_list = np.arange(0.0, 20.0, 0.5).tolist()
 
     length = len(last_list)*len(pv_list)*len(bat_list)
 
