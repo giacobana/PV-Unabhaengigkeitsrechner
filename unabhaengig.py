@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import json       
 import pathlib
+import datetime
     
 tabelleEigenverbrauch = json.loads(pathlib.Path( "./data/eigenverbrauch.json").read_text())
 tabelleAutarkie = json.loads(pathlib.Path( "./data/autarkie.json").read_text())
@@ -72,7 +73,8 @@ if __name__ == "__main__":
     for last in last_list:
         for pv in pv_list:
             for bat in bat_list:
-                print("Fortschritt: ","{:.2f}".format(i/length*100),"%")
+                if i % 100 == 0:
+                    print(f"Fortschritt: {(i/length*100):.2f} %")
                 ratio_pv = SetRatioPV(last, pv)
                 ratio_bat = SetRatioBat(last, bat)
 
