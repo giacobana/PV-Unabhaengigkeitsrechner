@@ -22,7 +22,11 @@ For furhter information follow: https://pvspeicher.htw-berlin.de/unabhaengigkeit
 
 ## How to use
 
-In the main function of the python script ```python unabhaengig.py``` needs to be specified for which amounts of energy consumption (list "last_list" / min: 2,000 kWh max: 20,000 kWh), PV capacity (list "pv_list" / min: 1,0 kWp max 20,0 kWp) and battery capacity (list "bat_list" / min: 0,0 kWh max 20,0 kWh) self-consumption an self-sufficiency should be calculated.
+In the main function of the python script ```python unabhaengig.py``` needs to be specified for which amounts of... 
+- Energy consumption (list "last_list" / min: 2,000 kWh max: 20,000 kWh)
+- PV capacity (list "pv_list" / min: 1,0 kWp max 20,0 kWp)
+- battery capacity (list "bat_list" / min: 0,0 kWh max 20,0 kWh)...
+self-consumption an self-sufficiency should be calculated.
 
 After specifying, run the script in your IDE or command line.
 
