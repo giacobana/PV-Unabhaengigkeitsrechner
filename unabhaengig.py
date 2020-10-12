@@ -113,7 +113,7 @@ if __name__ == "__main__":
         os.mkdir("./output")
     last_list = np.arange(valueSet["consumptionStart"], valueSet["consumptionStop"], valueSet["consumptionStep"]).tolist()
     pv_list = np.arange(valueSet["pvCapStart"], valueSet["pvCapStop"], 0.5).tolist()
-    bat_list = np.arange(0.0, 20.0, 0.5).tolist()
+    bat_list = np.arange(valueSet["batCapStart"], valueSet["batCapStop"], 0.5).tolist()
 
     length = len(last_list)*len(pv_list)*len(bat_list)
 
