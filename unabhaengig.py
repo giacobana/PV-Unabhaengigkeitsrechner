@@ -4,9 +4,10 @@ import numpy as np
 import json       
 import pathlib
 import datetime
-    
-tabelleEigenverbrauch = json.loads(pathlib.Path( "./data/eigenverbrauch.json").read_text())
-tabelleAutarkie = json.loads(pathlib.Path( "./data/autarkie.json").read_text())
+import os
+# fixed typing!
+from data.autarkie import autarkieTable
+from data.eigenverbrauch import eigenverbrauchTable
 
 #Hilfsfunktion zum Berechnen des Verhältnisses PV/Last
 def SetRatioPV(last, pv):
@@ -41,28 +42,78 @@ def SucheWertAusMatrix(table, x, y):
            
 #Funktion zum Ermitteln des Eigenverbrauchsanteils
 def GetEigenverbrauch(ratio_pv, ratio_bat):
-    eigen = SucheWertAusMatrix(tabelleEigenverbrauch, ratio_pv, ratio_bat)
+    eigen = SucheWertAusMatrix(eigenverbrauchTable, ratio_pv, ratio_bat)
     return eigen
            
 #Funktion zum Ermitteln des Autarkiegrades
 def GetAutarkie(ratio_pv, ratio_bat):
-    autark = SucheWertAusMatrix(tabelleAutarkie, ratio_pv, ratio_bat)
+    autark = SucheWertAusMatrix(autarkieTable, ratio_pv, ratio_bat)
     return autark
            
 #Funktion zum Ermitteln des Direktsanteils vom Eigenverbrauch
 def GetDirektverbrauchEigen(ratio_pv):
-    dir_eigen = SucheWertAusMatrix(tabelleEigenverbrauch, ratio_pv, 0)
+    dir_eigen = SucheWertAusMatrix(eigenverbrauchTable, ratio_pv, 0)
     return dir_eigen
            
 #Funktion zum Ermitteln des Direktsanteils vom Autarkiegrad
 def GetDirektverbrauchAutarkie(ratio_pv):
-    dir_autarkie = SucheWertAusMatrix(tabelleAutarkie, ratio_pv, 0)
+    dir_autarkie = SucheWertAusMatrix(autarkieTable, ratio_pv, 0)
     return dir_autarkie
 
+def BestValues(frame):
+    maxAutarkie = frame["Autarkie"].max()*100
+    maxIndex = frame["Autarkie"].idxmax()
+    energy = frame.iloc[maxIndex]["Stromverbrauch"]
+    pv = frame.iloc[maxIndex]["PV-Leistung"]
+    bat = frame.iloc[maxIndex]["Batterie"]
+    eigenverbrauch = frame.iloc[maxIndex]["Eigenverbrauch"]
+    print("Max. Autarkiegrad: {}%".format(maxAutarkie))
+    print("Bei: {} kWh Verbrauch [{}% Eigenverbrauch], {} kWp Leistung PV und {} kWh Batteriespeicher".format(energy, eigenverbrauch, pv, bat))
+
+
+#Helper to request inputValues
+def getInputValues():
+    print("Developed by giacobana")
+    print("You may enter new numbers, but bear in mind: The default values are suitable")
+    valueSet = {
+        "consumptionStart": 2000,
+        "consumptionStop": 20000,
+        "consumptionStep": 500,
+        "pvCapStart": 1.0,
+        "pvCapStop": 20.0,
+        "batCapStart": 0.0,
+        "batCapStop": 20.0
+    }
+    try:
+        valueSet["consumptionStart"] = int(input("Energy Consumption bare minimum in kWh (2000):") or 2000)
+        valueSet["consumptionStop"] = int(input("Energy Consumption maximum in kWh (20000):") or 20000)
+        valueSet["consumptionStep"] = int(input("Energy Consumption steps in kWh (500):") or 500)
+        valueSet["pvCapStart"] = int(input("PV-Capability minimum in kWp (1.0):") or 1.0)
+        valueSet["pvCapStop"] = int(input("PV-Capability maximum in kWp (20.0):") or 20.0)
+        valueSet["batCapStart"] = int(input("Battery-Capacity minimum in kWh (0.0):") or 0.0)
+        valueSet["batCapStop"] = int(input("Battery-Capacity maximum in kWh (20.0):") or 20.0)
+    except:
+        print("Error: Using default Values!")
+        valueSet = {
+        "consumptionStart": 2000,
+        "consumptionStop": 20000,
+        "consumptionStep": 500,
+        "pvCapStart": 1.0,
+        "pvCapStop": 20.0,
+        "batCapStart": 0.0,
+        "batCapStop": 20.0
+    }
+    return valueSet
+
 if __name__ == "__main__":
-    last_list = list(range(2000,10000,500))
-    pv_list = np.arange(1.0, 20.0,0.5).tolist()
-    bat_list = np.arange(0.0, 20.0, 0.5).tolist()
+    # get inputs
+    valueSet = getInputValues()
+    # make outputFolder if not
+    if os.access("./output", os.W_OK) == False:
+        os.mkdir("./output")
+    last_list = np.arange(valueSet["consumptionStart"], valueSet["consumptionStop"], valueSet["consumptionStep"]).tolist()
+    pv_list = np.arange(valueSet["pvCapStart"], valueSet["pvCapStop"], 0.5).tolist()
+    bat_list = np.arange(valueSet["batCapStart"], valueSet["batCapStop"], 0.5).tolist()
 
     length = len(last_list)*len(pv_list)*len(bat_list)
 
@@ -94,5 +145,6 @@ if __name__ == "__main__":
                 }
                 df = df.append(new, ignore_index = True)
                 i += 1
+    BestValues(df)
     df.to_csv("./output/all_data.csv")
     df.to_excel("./output/all_data.xlsx")
